@@ -1,4 +1,5 @@
 var http = require('http');
+var url = require('url');
 
 var pages = [
   {route: '/', output: 'zanmai'},
@@ -8,10 +9,9 @@ var pages = [
 ];
 
 http.createServer(function(req, res){
-  var lookup = decodeURI(req.url);
-  console.log(lookup);
+  var u = url.parse(decodeURI(req.url), true);
   pages.forEach(function(page){
-    if(page.route === lookup){
+    if(page.route === u.pathname){
       res.writeHead(200, {'Content-Type': 'text/html'});
       res.end(typeof page.output === 'function' ? page.output() : page.output);
     }
