@@ -12,11 +12,22 @@ var cache = {};
 var cacheAndDeliver = function(fname, callback){
   if(cache[fname]){
     console.log('cache hit : ' + fname);
-    callback(null, cache[fname].content);
+    fs.stat(fname, function(err, stat){
+      var update_at = Date.parse(stat.ctime);
+      if(update_at > cache[fname].timestamp){
+        console.log('reload file' + fname);
+        fs.readFile(fname, function(err, data){
+          if(!err) cache[fname] = {content: data, timestamp: update_at};
+          callback(err, data);
+        });
+        return;
+      }
+      callback(err, cache[fname].content);
+    });
     return;
   }
   fs.readFile(fname, function(err, data){
-    if(!err) cache[fname] = {content: data};
+    if(!err) cache[fname] = {content: data, timestamp: Date.now()};
     callback(err, data);
   });
 };
