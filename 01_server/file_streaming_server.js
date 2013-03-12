@@ -23,7 +23,7 @@ http.createServer(function(req, res){
         res.end(cache[file].content);
         return;
       }
-      var s = fs.createReadStream(file);
+      var s = fs.createReadStream(file, {bufferSize: 128*1024}); // 128KB
       s.once('open', function(){
         res.writeHead(200, header);
         this.pipe(res);
